@@ -1,29 +1,12 @@
 import os
-import requests
-from datetime import datetime
-from urllib.parse import urlsplit, unquote
+import argparse
 from dotenv import load_dotenv
 
-
-load_dotenv()
-nasa_token = os.getenv('NASA_API_KEY')
+from image_downloader import download_image
 
 
-def download_image(image_link, target_filepath):
-    os.makedirs(os.path.dirname(target_filepath), exist_ok=True)
-
-    response = requests.get(image_link)
-    response.raise_for_status()
-
-    with open(target_filepath, 'wb') as file:
-        file.write(response.content)
-
-
-def extract_file_extension(image_link):
-    image_path = urlsplit(image_link).path
-    image_filename = os.path.basename(unquote(image_path))
-    _, extension = os.path.splitext(image_filename)
-    return extension
+from datetime import datetime
+import requests
 
 
 def build_epic_image_links(api_key):
@@ -63,8 +46,21 @@ def fetch_epic_images(api_key, max_images=10):
         download_image(epic_link, final_filepath)
 
 
-if __name__ == '__main__':
-    if not nasa_token:
-        raise RuntimeError('NASA_API_KEY не найден в .env')
+def main():
+    load_dotenv()
 
-    fetch_epic_images(nasa_token, max_images=5)
+    parser = argparse.ArgumentParser(
+        description='Скачивает изображения Земли с NASA EPIC'
+    )
+    parser.add_argument('--api-key', default=os.getenv('NASA_API_KEY'), help='API-ключ NASA')
+    parser.add_argument('--count', type=int, default=5, help='Количество изображений (по умолчанию 5)')
+    args = parser.parse_args()
+
+    if not args.api_key:
+        raise RuntimeError('NASA_API_KEY не найден в .env и не передан через --api-key')
+
+    fetch_epic_images(args.api_key, max_images=args.count)
+
+
+if __name__ == '__main__':
+    main()
