@@ -7,33 +7,33 @@ from dotenv import load_dotenv
 from image_downloader import download_image
 
 
-def get_epic_image_links(api_key, max_images):
-    epic_api_endpoint = 'https://api.nasa.gov/EPIC/api/natural'
-    request_params = {'api_key': api_key}
-    response = requests.get(epic_api_endpoint, params=request_params)
+def get_epic_links(api_key, max_images):
+    endpoint = 'https://api.nasa.gov/EPIC/api/natural'
+    params = {'api_key': api_key}
+    response = requests.get(endpoint, params=params)
     response.raise_for_status()
 
-    image_metadata_list = response.json()
-    image_links = []
+    items = response.json()
+    links = []
 
-    for image_metadata in image_metadata_list[:max_images]:
-        photo_captured_at = datetime.strptime(image_metadata['date'], '%Y-%m-%d %H:%M:%S')
-        epic_filename = image_metadata['image']
-        epic_link = (
+    for item in items[:max_images]:
+        date = datetime.strptime(item['date'], '%Y-%m-%d %H:%M:%S')
+        name = item['image']
+        link = (
             f'https://api.nasa.gov/EPIC/archive/natural/'
-            f'{photo_captured_at:%Y/%m/%d}/png/{epic_filename}.png'
+            f'{date:%Y/%m/%d}/png/{name}.png'
             f'?api_key={api_key}'
         )
-        image_links.append((epic_link, epic_filename))
+        links.append((link, name))
 
-    return image_links
+    return links
 
 
-def download_epic_images(image_links_with_names):
-    for index, (epic_link, _) in enumerate(image_links_with_names, start=1):
-        result_filename = f'epic{index}.png'
-        final_filepath = os.path.join('space_gallery', result_filename)
-        download_image(epic_link, final_filepath)
+def download_epic_images(links_with_names):
+    for index, (link, _) in enumerate(links_with_names, start=1):
+        filename = f'epic{index}.png'
+        filepath = os.path.join('space_gallery', filename)
+        download_image(link, filepath)
 
 
 def main():
@@ -49,8 +49,8 @@ def main():
     if not args.api_key:
         raise RuntimeError('NASA_API_KEY не найден в .env и не передан через --api-key')
 
-    image_links = get_epic_image_links(args.api_key, args.count)
-    download_epic_images(image_links)
+    links = get_epic_links(args.api_key, args.count)
+    download_epic_images(links)
 
 
 if __name__ == '__main__':

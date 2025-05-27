@@ -6,25 +6,25 @@ from dotenv import load_dotenv
 from image_downloader import download_image, extract_file_extension
 
 
-def get_apod_images_metadata(api_key, image_count):
+def get_apod_images(api_key, count):
     nasa_apod_api = 'https://api.nasa.gov/planetary/apod'
-    request_params = {'count': image_count, 'api_key': api_key}
-    response = requests.get(nasa_apod_api, params=request_params)
+    params = {'count': count, 'api_key': api_key}
+    response = requests.get(nasa_apod_api, params=params)
     response.raise_for_status()
     return response.json()
 
 
-def download_apod_images(image_metadata_list):
-    for index, image_metadata in enumerate(image_metadata_list, start=1):
-        if image_metadata.get('media_type') != 'image':
+def download_apod_images(images):
+    for index, image in enumerate(images, start=1):
+        if image.get('media_type') != 'image':
             continue
 
-        image_link = image_metadata['url']
-        extension = extract_file_extension(image_link)
-        filename = f'nasa{index}{extension}'
-        target_filepath = os.path.join('space_gallery', filename)
+        link = image['url']
+        ext = extract_file_extension(link)
+        filename = f'nasa{index}{ext}'
+        filepath = os.path.join('space_gallery', filename)
 
-        download_image(image_link, target_filepath)
+        download_image(link, filepath)
 
 
 def main():
@@ -40,8 +40,8 @@ def main():
     if not args.api_key:
         raise RuntimeError('NASA API ключ не указан и не найден в .env')
 
-    image_metadata_list = get_apod_images_metadata(args.api_key, args.count)
-    download_apod_images(image_metadata_list)
+    images = get_apod_images(args.api_key, args.count)
+    download_apod_images(images)
 
 
 if __name__ == '__main__':
