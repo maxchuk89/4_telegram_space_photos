@@ -1,6 +1,7 @@
 import argparse
 import os
 from datetime import datetime
+from urllib.parse import urlencode
 
 import requests
 from dotenv import load_dotenv
@@ -20,12 +21,9 @@ def get_epic_links(api_key, max_images):
     for item in items[:max_images]:
         date = datetime.strptime(item['date'], '%Y-%m-%d %H:%M:%S')
         name = item['image']
-        link = (
-            f'https://api.nasa.gov/EPIC/archive/natural/'
-            f'{date:%Y/%m/%d}/png/{name}.png'
-            f'?api_key={api_key}'
-        )
-        links.append((link, name))
+        base_url = f'https://api.nasa.gov/EPIC/archive/natural/{date:%Y/%m/%d}/png/{name}.png'
+        full_url = f'{base_url}?{urlencode({"api_key": api_key})}'
+        links.append((full_url, name))
 
     return links
 
