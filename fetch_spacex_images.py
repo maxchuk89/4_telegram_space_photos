@@ -5,10 +5,7 @@ import requests
 from image_downloader import download_image
 
 
-def fetch_spacex_images(launch_id=None):
-    if not launch_id:
-        launch_id = '5eb87d47ffd86e000604b38a'
-
+def fetch_spacex_images(launch_id):
     url = f'https://api.spacexdata.com/v5/launches/{launch_id}'
     response = requests.get(url)
     response.raise_for_status()
@@ -26,7 +23,11 @@ def main():
     parser = argparse.ArgumentParser(
         description='Скачивает изображения запуска SpaceX по ID или фиксированному запуску'
     )
-    parser.add_argument('--launch-id', help='ID запуска (по умолчанию: 5eb87d47ffd86e000604b38a)')
+    parser.add_argument(
+        '--launch-id',
+        default='5eb87d47ffd86e000604b38a',
+        help='ID запуска (по умолчанию: 5eb87d47ffd86e000604b38a)'
+    )
     args = parser.parse_args()
 
     fetch_spacex_images(args.launch_id)
