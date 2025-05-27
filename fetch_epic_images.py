@@ -30,8 +30,8 @@ def get_epic_links(api_key, max_images):
     return links
 
 
-def download_epic_images(links_with_names):
-    for index, (link, _) in enumerate(links_with_names, start=1):
+def download_epic_images(links):
+    for index, (link, _) in enumerate(links, start=1):
         filename = f'epic{index}.png'
         filepath = os.path.join('space_gallery', filename)
         download_image(link, filepath)
