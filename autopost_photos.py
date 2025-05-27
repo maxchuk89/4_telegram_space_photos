@@ -3,6 +3,7 @@ import time
 import random
 from dotenv import load_dotenv
 from telegram import Bot
+from telegram.error import TelegramError
 
 
 def main():
@@ -36,7 +37,7 @@ def main():
 
                 bot.send_photo(chat_id=chat_id, photo=photo_bytes)
                 print(f'Отправлено: {filename}')
-            except Exception as error:
+            except TelegramError as error:
                 print(f'Ошибка при отправке {filename}: {error}')
 
             time.sleep(post_interval)
